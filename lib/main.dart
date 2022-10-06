@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:picture_taker/src/home_page.dart';
 
-void main() {
+import 'src/screens/home_screen.dart';
+
+main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
   runApp(const PictureTakerApp());
 }
 
@@ -13,7 +16,7 @@ class PictureTakerApp extends StatelessWidget {
     return MaterialApp(
       title: 'Picture taker',
       theme: ThemeData.dark(),
-      home: const HomePage(
+      home: const HomeScreen(
         title: 'Picture taker',
       ),
     );
