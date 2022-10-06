@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_share/flutter_share.dart';
 
 class PictureGalleryScreen extends StatefulWidget {
   const PictureGalleryScreen({
@@ -147,7 +148,7 @@ class _PictureGalleryScreenState extends State<PictureGalleryScreen> {
         _buildMenuItem(
           'Share',
           icon: Icons.share,
-          onPressed: () => _removePicture(picture),
+          onPressed: () async => _sharePicture(picture),
         ),
         const PopupMenuDivider(),
         _buildMenuItem(
@@ -164,5 +165,16 @@ class _PictureGalleryScreenState extends State<PictureGalleryScreen> {
     return setState(() {
       widget.pictures.remove(picture);
     });
+  }
+
+  Future<void> _sharePicture(File picture) async {
+    final picturePath = picture.path;
+
+    await FlutterShare.shareFile(
+      title: 'Share a picture',
+      text: '',
+      filePath: picturePath,
+      fileType: 'image/jpeg',
+    );
   }
 }
