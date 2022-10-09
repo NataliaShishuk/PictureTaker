@@ -4,28 +4,30 @@ import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 
-import 'picture_gallery_screen.dart';
+import '../helpers/navigator_helper.dart';
+import '../helpers/snack_bar_helper.dart';
 
-class TakePictureScreen extends StatefulWidget {
-  const TakePictureScreen({
+class CustomPicturePickerScreen extends StatefulWidget {
+  const CustomPicturePickerScreen({
     super.key,
     required this.cameras,
+    required this.pictures,
   });
 
   final List<CameraDescription> cameras;
+  final List<File> pictures;
 
   @override
-  TakePictureScreenState createState() => TakePictureScreenState();
+  CustomPicturePickerScreenState createState() =>
+      CustomPicturePickerScreenState();
 }
 
-class TakePictureScreenState extends State<TakePictureScreen> {
+class CustomPicturePickerScreenState extends State<CustomPicturePickerScreen> {
   late CameraController _controller;
   late Future<void> _initializeControllerFuture;
 
   int _currentCameraIndex = 0;
   bool _isTakePictureButtonDisabled = false;
-
-  final List<File> _capturedPictures = [];
 
   @override
   void initState() {
@@ -106,16 +108,19 @@ class TakePictureScreenState extends State<TakePictureScreen> {
             ),
           ),
           GestureDetector(
-            onTap: () => _goToPictureGalleryScreen(context),
+            onTap: () => NavigatorHelper.openPictureGalleryScreen(
+              context,
+              widget.pictures,
+            ),
             child: Container(
               height: 50,
               width: 50,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(color: Colors.white),
-                image: _capturedPictures.isNotEmpty
+                image: widget.pictures.isNotEmpty
                     ? DecorationImage(
-                        image: FileImage(_capturedPictures.first),
+                        image: FileImage(widget.pictures.first),
                         fit: BoxFit.cover,
                       )
                     : null,
@@ -137,15 +142,6 @@ class TakePictureScreenState extends State<TakePictureScreen> {
     _initializeControllerFuture = _controller.initialize();
   }
 
-  void _showSnachBarMessage(BuildContext context, String messsage) {
-    final snackBar = SnackBar(
-      content: Text(messsage),
-      duration: const Duration(seconds: 2),
-    );
-
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
-  }
-
   void _onSwitchCamera(BuildContext context) {
     if (widget.cameras.length > 1) {
       setState(() {
@@ -154,10 +150,7 @@ class TakePictureScreenState extends State<TakePictureScreen> {
         _initializeCamera(_currentCameraIndex);
       });
     } else {
-      _showSnachBarMessage(
-        context,
-        'No secondary camera found',
-      );
+      SnackBarHelper.showMessage(context, 'No secondary camera found');
     }
   }
 
@@ -172,23 +165,14 @@ class TakePictureScreenState extends State<TakePictureScreen> {
       final picture = await _controller.takePicture();
 
       setState(() {
-        _capturedPictures.insert(0, File(picture.path));
+        widget.pictures.insert(0, File(picture.path));
       });
     } catch (e) {
-      _showSnachBarMessage(context, e.toString());
+      SnackBarHelper.showMessage(context, e.toString());
     } finally {
       setState(() {
         _isTakePictureButtonDisabled = false;
       });
     }
-  }
-
-  void _goToPictureGalleryScreen(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => PictureGalleryScreen(pictures: _capturedPictures),
-      ),
-    );
   }
 }

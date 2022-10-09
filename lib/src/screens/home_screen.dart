@@ -1,9 +1,11 @@
+import 'dart:io';
+
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 
-import 'take_picture_screen.dart';
+import '../helpers/navigator_helper.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({
     super.key,
     required this.title,
@@ -12,13 +14,18 @@ class HomeScreen extends StatelessWidget {
   final String title;
 
   @override
-  Widget build(BuildContext context) {
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  final _pictures = <File>[];
+
+  @override
+  Widget build(BuildContext constext) {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: Text(
-            title,
-          ),
+          title: Text(widget.title),
         ),
         body: Center(
           child: FutureBuilder(
@@ -27,20 +34,30 @@ class HomeScreen extends StatelessWidget {
               if (snapshot.connectionState == ConnectionState.done) {
                 final cameras = snapshot.data!;
 
-                return ElevatedButton.icon(
-                  onPressed: () async => _goToTakePictureView(context, cameras),
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 10,
-                      horizontal: 10,
+                return Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _buildButton(
+                      text: 'Custom camera',
+                      icon: Icons.camera_alt_outlined,
+                      onPressed: () async =>
+                          NavigatorHelper.openCustomPicturePickerScreen(
+                        context,
+                        cameras,
+                        _pictures,
+                      ),
                     ),
-                  ),
-                  icon: const Icon(
-                    Icons.camera_alt_outlined,
-                  ),
-                  label: const Text(
-                    'Take picture',
-                  ),
+                    const SizedBox(height: 10),
+                    _buildButton(
+                      text: 'Native camera',
+                      icon: Icons.camera_alt_outlined,
+                      onPressed: () async =>
+                          NavigatorHelper.openNativePicturePickerScreen(
+                        context,
+                        _pictures,
+                      ),
+                    ),
+                  ],
                 );
               } else {
                 return const CircularProgressIndicator();
@@ -52,16 +69,23 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Future<void> _goToTakePictureView(
-    BuildContext context,
-    List<CameraDescription> cameras,
-  ) async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => TakePictureScreen(
-          cameras: cameras,
+  Widget _buildButton({
+    required String text,
+    IconData? icon,
+    void Function()? onPressed,
+  }) {
+    return SizedBox(
+      width: 200,
+      child: ElevatedButton.icon(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(
+            vertical: 10,
+            horizontal: 10,
+          ),
         ),
+        icon: Icon(icon),
+        label: Text(text),
       ),
     );
   }
