@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import '../screens/native_picture_picker_screen.dart';
 import '../screens/picture_gallery_screen.dart';
 import '../screens/custom_picture_picker_screen.dart';
+import '../screens/qr_generator_screen.dart';
 
 class NavigatorHelper {
   static Future<void> openNativePicturePickerScreen(
@@ -32,6 +33,15 @@ class NavigatorHelper {
           cameras: cameras,
           pictures: pictures,
         ),
+      ),
+    );
+  }
+
+  static Future<void> openQrGeneratorScreen(BuildContext context) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const QrGeneratorScreen(),
       ),
     );
   }

@@ -57,6 +57,13 @@ class _HomeScreenState extends State<HomeScreen> {
                         _pictures,
                       ),
                     ),
+                    const SizedBox(height: 10),
+                    _buildButton(
+                      text: 'QR generator',
+                      icon: Icons.qr_code_2,
+                      onPressed: () async =>
+                          NavigatorHelper.openQrGeneratorScreen(context),
+                    ),
                   ],
                 );
               } else {
